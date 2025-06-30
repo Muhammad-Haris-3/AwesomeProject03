@@ -1,12 +1,9 @@
-import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import MainHeading from './components/MainHeading';
 
-const App = () => {
+const MainHeading = ({ text }) => {
   return (
     <View>
-      <MainHeading text={'Allah'} />
-      <Text style={styles.text}>Asalamua Alaikum</Text>
+      <Text style={styles.text}>{text}</Text>
     </View>
   );
 };
@@ -19,4 +16,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-export default App;
+
+export default MainHeading;
