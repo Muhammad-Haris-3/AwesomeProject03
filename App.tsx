@@ -1,11 +1,11 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import MainHeading from './components/MainHeading';
 
 const App = () => {
   return (
     <View>
-      <Text>Hello World</Text>
-      <Text>Hello World</Text>
+      <MainHeading title="Alhamdulillah" />
     </View>
   );
 };
