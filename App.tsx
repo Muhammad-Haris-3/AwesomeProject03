@@ -1,5 +1,3 @@
-import { Formik } from 'formik';
-import React, { useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -9,83 +7,86 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import React, { useState } from 'react';
 
-//For Validation
-import * as Yup from 'yup';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 
-const passwordSchema = Yup.object().shape({
+// Form validation
+import * as Yup from 'yup';
+import { Formik } from 'formik';
+// YOUTUBE:
+const PasswordSchema = Yup.object().shape({
   passwordLength: Yup.number()
-    .min(8, 'Password must be at least 8 characters')
-    .max(16, 'Password must be less than 16 characters')
-    .required('Password is required'),
+    .min(4, 'Should be min of 4 characters')
+    .max(16, 'Should be max of 16 characters')
+    .required('Length is required'),
 });
-
-const App = () => {
+export default function App() {
   const [password, setPassword] = useState('');
-  const [isPasswordGenerated, setIsPasswordGenerated] = useState(false);
+  const [isPassGenerated, setIsPassGenerated] = useState(false);
+
   const [lowerCase, setLowerCase] = useState(true);
-  const [upperCase, setUpperCase] = useState(false);
-  const [number, setNumber] = useState(false);
+  const [upperCase, setupperCase] = useState(false);
+  const [numbers, setNumbers] = useState(false);
   const [symbols, setSymbols] = useState(false);
 
   const generatePasswordString = (passwordLength: number) => {
-    generatePassword(passwordLength);
+    let characterList = '';
+
+    const upperCaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lowerCaseChars = 'abcdefghijklmnopqrstuvwxyz';
+    const digitChars = '0123456789';
+    const specialChars = '!@#$%^&*()_+';
+
+    if (upperCase) {
+      characterList += upperCaseChars;
+    }
+    if (lowerCase) {
+      characterList += lowerCaseChars;
+    }
+    if (numbers) {
+      characterList += digitChars;
+    }
+    if (symbols) {
+      characterList += specialChars;
+    }
+
+    const passwordResult = createPassword(characterList, passwordLength);
+
+    setPassword(passwordResult);
+    setIsPassGenerated(true);
   };
 
   const createPassword = (characters: string, passwordLength: number) => {
     let result = '';
     for (let i = 0; i < passwordLength; i++) {
-      const charIndex = Math.floor(Math.random() * characters.length);
-      result += characters.charAt(charIndex);
+      const characterIndex = Math.round(Math.random() * characters.length);
+      result += characters.charAt(characterIndex);
     }
     return result;
-  };
-
-  const generatePassword = (passwordLength: number) => {
-    let charList = '';
-    const upperCaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const lowerCaseChars = 'abcdefghijklmnopqrstuvwxyz';
-    const numbersChars = '0123456789';
-    const symbolsChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-
-    if (upperCase) {
-      charList += upperCaseChars;
-    }
-    if (lowerCase) {
-      charList += lowerCaseChars;
-    }
-    if (number) {
-      charList += numbersChars;
-    }
-    if (symbols) {
-      charList += symbolsChars;
-    }
-
-    const passwordResult = createPassword(charList, passwordLength);
-
-    setPassword(passwordResult);
-    setIsPasswordGenerated(true);
+    console.log('hitesh');
   };
 
   const resetPasswordState = () => {
     setPassword('');
-    setIsPasswordGenerated(false);
+    setIsPassGenerated(false);
     setLowerCase(true);
-    setUpperCase(false);
-    setNumber(false);
+    setupperCase(false);
+    setNumbers(false);
     setSymbols(false);
   };
+
   return (
     <ScrollView keyboardShouldPersistTaps="handled">
-      <SafeAreaView>
-        <View style={styles.container}>
-          <Text style={styles.text}>Password Generator</Text>
+      <SafeAreaView style={styles.appContainer}>
+        <View style={styles.formContainer}>
+          <Text style={styles.title}>Password Generator</Text>
           <Formik
             initialValues={{ passwordLength: '' }}
-            validationSchema={passwordSchema}
+            validationSchema={PasswordSchema}
             onSubmit={values => {
-              generatePasswordString(Number(values.passwordLength));
+              console.log(values);
+              generatePasswordString(+values.passwordLength);
             }}
           >
             {({
@@ -99,81 +100,82 @@ const App = () => {
               /* and other goodies */
             }) => (
               <>
-                <View>
-                  <View>
-                    <Text style={styles.text}>Password Length</Text>
+                <View style={styles.inputWrapper}>
+                  <View style={styles.inputColumn}>
+                    <Text style={styles.heading}>Password Length</Text>
                     {touched.passwordLength && errors.passwordLength && (
                       <Text style={styles.errorText}>
                         {errors.passwordLength}
                       </Text>
                     )}
-                    <TextInput
-                      style={styles.inputText}
-                      value={values.passwordLength}
-                      onChangeText={handleChange('passwordLength')}
-                      placeholder="Enter Password Length"
-                      keyboardType="numeric"
-                    />
                   </View>
+                  <TextInput
+                    style={styles.inputStyle}
+                    value={values.passwordLength}
+                    onChangeText={handleChange('passwordLength')}
+                    placeholder="Ex. 8"
+                    keyboardType="numeric"
+                  />
                 </View>
-                <View>
-                  <Text style={styles.text}>Include Lowercase Letters</Text>
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.heading}>Include lowercase</Text>
                   <BouncyCheckbox
                     isChecked={lowerCase}
                     onPress={() => setLowerCase(!lowerCase)}
-                    fillColor="aqua"
+                    fillColor="#29AB87"
                   />
                 </View>
-                <View>
-                  <Text style={styles.text}>Include UpperCase Letters</Text>
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.heading}>Include Uppercase letters</Text>
                   <BouncyCheckbox
                     isChecked={upperCase}
-                    onPress={() => setUpperCase(!upperCase)}
-                    fillColor="aqua"
+                    onPress={() => setupperCase(!upperCase)}
+                    fillColor="#FED85D"
                   />
                 </View>
-                <View>
-                  <Text style={styles.text}>Include Numbers</Text>
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.heading}>Include Numbers</Text>
                   <BouncyCheckbox
-                    isChecked={number}
-                    onPress={() => setNumber(!number)}
-                    fillColor="aqua"
+                    isChecked={numbers}
+                    onPress={() => setNumbers(!numbers)}
+                    fillColor="#C9A0DC"
                   />
                 </View>
-                <View>
-                  <Text style={styles.text}>Include Symbols</Text>
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.heading}>Include Symbols</Text>
                   <BouncyCheckbox
                     isChecked={symbols}
                     onPress={() => setSymbols(!symbols)}
-                    fillColor="aqua"
+                    fillColor="#FC80A5"
                   />
                 </View>
-
-                <View>
+                <View style={styles.formActions}>
                   <TouchableOpacity
                     disabled={!isValid}
+                    style={styles.primaryBtn}
                     onPress={() => handleSubmit()}
                   >
-                    <Text style={styles.text}>Generate Password</Text>
+                    <Text style={styles.primaryBtnTxt}>Generate Password</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
+                    style={styles.secondaryBtn}
                     onPress={() => {
                       handleReset();
                       resetPasswordState();
                     }}
                   >
-                    <Text style={styles.text}>Reset</Text>
+                    <Text style={styles.secondaryBtnTxt}>Reset</Text>
                   </TouchableOpacity>
                 </View>
               </>
             )}
           </Formik>
         </View>
-        {isPasswordGenerated ? (
-          <View>
-            <Text>Result :</Text>
-            <Text>Long Press To Copy</Text>
-            <Text selectable style={styles.text}>
+        {isPassGenerated ? (
+          <View style={[styles.card, styles.cardElevated]}>
+            <Text style={styles.subTitle}>Result:</Text>
+            <Text style={styles.description}>Long Press to copy</Text>
+            <Text selectable={true} style={styles.generatedPassword}>
               {password}
             </Text>
           </View>
@@ -181,27 +183,99 @@ const App = () => {
       </SafeAreaView>
     </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 50,
+  appContainer: {
+    flex: 1,
   },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
+  formContainer: {
+    margin: 8,
+    padding: 8,
   },
-  inputText: {
+  title: {
+    fontSize: 32,
+    fontWeight: '600',
+    marginBottom: 15,
+  },
+  subTitle: {
+    fontSize: 26,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  description: {
+    color: '#758283',
+    marginBottom: 8,
+  },
+  heading: {
+    fontSize: 15,
+  },
+  inputWrapper: {
+    marginBottom: 15,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+  },
+  inputColumn: {
+    flexDirection: 'column',
+  },
+  inputStyle: {
+    padding: 8,
+    width: '30%',
     borderWidth: 1,
-    borderColor: 'white',
-    padding: 10,
-    borderRadius: 5,
-    color: 'white',
+    borderRadius: 4,
+    borderColor: '#16213e',
   },
   errorText: {
-    color: 'red',
+    fontSize: 12,
+    color: '#ff0d10',
+  },
+  formActions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  primaryBtn: {
+    width: 120,
+    padding: 10,
+    borderRadius: 8,
+    marginHorizontal: 8,
+    backgroundColor: '#5DA3FA',
+  },
+  primaryBtnTxt: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '700',
+  },
+  secondaryBtn: {
+    width: 120,
+    padding: 10,
+    borderRadius: 8,
+    marginHorizontal: 8,
+    backgroundColor: '#CAD5E2',
+  },
+  secondaryBtnTxt: {
+    textAlign: 'center',
+  },
+  card: {
+    padding: 12,
+    borderRadius: 6,
+    marginHorizontal: 12,
+  },
+  cardElevated: {
+    backgroundColor: '#ffffff',
+    elevation: 1,
+    shadowOffset: {
+      width: 1,
+      height: 1,
+    },
+    shadowColor: '#333',
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  generatedPassword: {
+    fontSize: 22,
+    textAlign: 'center',
+    marginBottom: 12,
+    color: '#000',
   },
 });
-
-export default App;
